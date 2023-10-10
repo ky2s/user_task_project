@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"time"
+	"user_task_project/controllers"
+	"user_task_project/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
@@ -11,15 +11,6 @@ import (
 )
 
 func main() {
-
-	//connect DB
-	// db, err := gorm.Open(sqlite.Open("user_task_project.db"), &gorm.Config{})
-	// if err != nil {
-	// 	panic("failed to connect database")
-	// }
-
-	// dsn := "root:@tcp(127.0.0.1:3306)/user_task_project?charset=utf8mb4&parseTime=True&loc=Local"
-	// db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	dsn := "host=localhost user=postgres password=12345678 dbname=user_task_project port=5433 sslmode=disable TimeZone=Asia/Jakarta"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -29,68 +20,32 @@ func main() {
 	}
 
 	//automigrate
-	db.AutoMigrate(&Users{}, &Tasks{})
+	db.AutoMigrate(&models.Users{})
 
-	// db.Migrator().AutoMigrate(&Users{})
-
-	// // Create table for `User`
-	// db.Migrator().CreateTable(&Users{})
-
-	// sqlDB, err := db.DB()
-	// if err != nil {
-	// 	panic("failed to connect err")
-
-	// }
-
-	db.Create(&Users{
-		Name:  "jinzhu",
-		Email: "jinzhu@gmail.com",
-	})
+	// db.Create(&Users{
+	// 	Name:  "jinzhu",
+	// 	Email: "jinzhu@gmail.com",
+	// })
+	var userModels models.UserModels = models.NewUserModels(db)
+	var userController controllers.UserController = controllers.NewUserController(userModels)
 
 	r := gin.Default()
 
 	fmt.Println("connect", db)
 
-	r.GET("/users", func(c *gin.Context) {
+	// endpoint user
+	r.POST("/users", userController.InsertUser)        //done
+	r.GET("/users", userController.GetUser)            //done
+	r.GET("/users/:id", userController.GetUser)        //done
+	r.PUT("/users/:id", userController.UpdateUser)     //done
+	r.DELETE("/users/:id", userController.DestroyUser) //done
 
-		// Get all records
-		var users []Users
-		err := db.Find(&users).Error
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{
-				"data": nil,
-				"err":  err.Error(),
-			})
-			return
-
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"data": users,
-		})
-		return
-	})
+	// endpoint tasks
+	r.POST("/tasks", userController.GetUser)
+	r.GET("/tasks", userController.GetUser)
+	r.GET("/tasks/:id", userController.GetUser)
+	r.PUT("/tasks/:id", userController.GetUser)
+	r.DELETE("/tasks/:id", userController.GetUser)
 
 	r.Run()
-}
-
-type Users struct {
-	gorm.Model
-	ID        int    `gorm:"primaryKey;autoIncrement"`
-	Name      string `gorm:"size:255"`
-	Email     string `gorm:"size:255"`
-	Password  string `gorm:"size:255"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-type Tasks struct {
-	gorm.Model
-	ID          int    `gorm:"primaryKey;autoIncrement"`
-	UserID      int    `gorm:"index"`
-	Title       string `gorm:"size:255"`
-	Description string
-	Status      string `gorm:"size:50"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
 }
