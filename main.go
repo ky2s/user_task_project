@@ -29,6 +29,9 @@ func main() {
 	var userModels models.UserModels = models.NewUserModels(db)
 	var userController controllers.UserController = controllers.NewUserController(userModels)
 
+	var taskModels models.TaskModels = models.NewTaskModels(db)
+	var taskController controllers.TaskController = controllers.NewTaskController(taskModels)
+
 	r := gin.Default()
 
 	fmt.Println("connect", db)
@@ -41,11 +44,11 @@ func main() {
 	r.DELETE("/users/:id", userController.DestroyUser) //done
 
 	// endpoint tasks
-	r.POST("/tasks", userController.GetUser)
-	r.GET("/tasks", userController.GetUser)
-	r.GET("/tasks/:id", userController.GetUser)
-	r.PUT("/tasks/:id", userController.GetUser)
-	r.DELETE("/tasks/:id", userController.GetUser)
+	r.POST("/tasks", taskController.InsertTask)
+	r.GET("/tasks", taskController.GetTask)
+	r.GET("/tasks/:id", taskController.GetTask)
+	r.PUT("/tasks/:id", taskController.UpdateTask)
+	r.DELETE("/tasks/:id", taskController.DestroyTask)
 
 	r.Run()
 }

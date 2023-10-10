@@ -25,18 +25,7 @@ type UserViews struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-type Tasks struct {
-	gorm.Model
-	ID          int    `gorm:"primaryKey;autoIncrement"`
-	UserID      int    `gorm:"index"`
-	Title       string `gorm:"size:255"`
-	Description string
-	Status      string `gorm:"size:50"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-}
-
-func SchemaUsr(tableName string) func(db *gorm.DB) *gorm.DB {
+func SchemaPublic(tableName string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Table("public" + "." + tableName)
 	}
@@ -61,7 +50,7 @@ func NewUserModels(dbg *gorm.DB) UserModels {
 }
 
 func (con *connection) CreateUser(data Users) (Users, error) {
-	err := con.db.Scopes(SchemaUsr("users")).Create(&data).Error
+	err := con.db.Scopes(SchemaPublic("users")).Create(&data).Error
 	if err != nil {
 		fmt.Println(err)
 		return Users{}, err
@@ -101,7 +90,7 @@ func (con *connection) GetUserRow(fields Users) (Users, error) {
 
 func (con *connection) UpdateUser(userID int, fields Users) (int, error) {
 
-	err := con.db.Scopes(SchemaUsr("users")).Where("id = ?", userID).Updates(fields).Error
+	err := con.db.Scopes(SchemaPublic("users")).Where("id = ?", userID).Updates(fields).Error
 	if err != nil {
 		fmt.Println(err)
 		return 0, err
@@ -112,7 +101,7 @@ func (con *connection) UpdateUser(userID int, fields Users) (int, error) {
 
 func (con *connection) DeleteUser(id int) (bool, error) {
 	var data Users
-	err := con.db.Scopes(SchemaUsr("users")).Where("id = ?", id).Delete(&data).Error
+	err := con.db.Scopes(SchemaPublic("users")).Where("id = ?", id).Delete(&data).Error
 	if err != nil {
 		return false, err
 	}

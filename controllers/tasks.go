@@ -9,34 +9,28 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type UserController interface {
-	InsertUser(c *gin.Context)
-	GetUser(c *gin.Context)
-	UpdateUser(c *gin.Context)
-	DestroyUser(c *gin.Context)
+type TaskController interface {
+	InsertTask(c *gin.Context)
+	GetTask(c *gin.Context)
+	UpdateTask(c *gin.Context)
+	DestroyTask(c *gin.Context)
 }
 
-type userController struct {
-	userMod models.UserModels
+type taskController struct {
+	taskMod models.TaskModels
 }
 
-func NewUserController(userModels models.UserModels) UserController {
-	return &userController{
-		userMod: userModels,
+func NewTaskController(taskModels models.TaskModels) TaskController {
+	return &taskController{
+		taskMod: taskModels,
 	}
 }
 
-func Hash(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
-}
+func (ctr *taskController) InsertTask(c *gin.Context) {
 
-func (ctr *userController) InsertUser(c *gin.Context) {
-
-	var reqData models.Users
+	var reqData models.Tasks
 	err := c.ShouldBindJSON(&reqData)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -59,17 +53,12 @@ func (ctr *userController) InsertUser(c *gin.Context) {
 		return
 	}
 
-	hash, err := Hash(reqData.Password)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	var postData models.Users
-	postData.Name = reqData.Name
-	postData.Email = reqData.Email
-	postData.Password = hash
-	createData, err := ctr.userMod.CreateUser(postData)
+	var postData models.Tasks
+	postData.UserID = 1
+	postData.Title = reqData.Title
+	postData.Description = reqData.Description
+	postData.Status = reqData.Status
+	createData, err := ctr.taskMod.CreateTask(postData)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  false,
@@ -86,10 +75,10 @@ func (ctr *userController) InsertUser(c *gin.Context) {
 	return
 }
 
-func (ctr *userController) GetUser(c *gin.Context) {
+func (ctr *taskController) GetTask(c *gin.Context) {
 
 	if c.Param("id") != "" {
-		userID, err := strconv.Atoi(c.Param("id"))
+		TaskID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": false,
@@ -98,8 +87,8 @@ func (ctr *userController) GetUser(c *gin.Context) {
 			return
 		}
 
-		if userID >= 1 {
-			dataRow, err := ctr.userMod.GetUserRow(models.Users{ID: userID})
+		if TaskID >= 1 {
+			dataRow, err := ctr.taskMod.GetTaskRow(models.Tasks{ID: TaskID})
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"status":  false,
@@ -117,10 +106,11 @@ func (ctr *userController) GetUser(c *gin.Context) {
 				return
 			}
 
-			var result models.UserViews
+			var result models.TaskViews
 			result.ID = dataRow.ID
-			result.Name = dataRow.Name
-			result.Email = dataRow.Email
+			result.Title = dataRow.Title
+			result.Description = dataRow.Description
+			result.Status = dataRow.Status
 			result.CreatedAt = dataRow.CreatedAt
 
 			c.JSON(http.StatusOK, gin.H{
@@ -132,7 +122,7 @@ func (ctr *userController) GetUser(c *gin.Context) {
 		}
 	}
 
-	dataRows, err := ctr.userMod.GetUserRows(models.Users{})
+	dataRows, err := ctr.taskMod.GetTaskRows(models.Tasks{})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  false,
@@ -150,12 +140,12 @@ func (ctr *userController) GetUser(c *gin.Context) {
 		return
 	}
 
-	var results []models.UserViews
+	var results []models.TaskViews
 	for i := 0; i < len(dataRows); i++ {
-		var each models.UserViews
+		var each models.TaskViews
 		each.ID = dataRows[i].ID
-		each.Name = dataRows[i].Name
-		each.Email = dataRows[i].Email
+		each.Title = dataRows[i].Title
+		each.Description = dataRows[i].Description
 		each.CreatedAt = dataRows[i].CreatedAt
 
 		results = append(results, each)
@@ -163,15 +153,15 @@ func (ctr *userController) GetUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  true,
-		"message": "Success created data",
+		"message": "Data is available",
 		"data":    results,
 	})
 	return
 }
 
-func (ctr *userController) UpdateUser(c *gin.Context) {
+func (ctr *taskController) UpdateTask(c *gin.Context) {
 	if c.Param("id") != "" {
-		userID, err := strconv.Atoi(c.Param("id"))
+		TaskID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": false,
@@ -180,8 +170,8 @@ func (ctr *userController) UpdateUser(c *gin.Context) {
 			return
 		}
 
-		if userID >= 1 {
-			dataRow, err := ctr.userMod.GetUserRow(models.Users{ID: userID})
+		if TaskID >= 1 {
+			dataRow, err := ctr.taskMod.GetTaskRow(models.Tasks{ID: TaskID})
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"status":  false,
@@ -194,7 +184,7 @@ func (ctr *userController) UpdateUser(c *gin.Context) {
 			if dataRow.ID >= 1 {
 
 				// data body
-				var reqData models.Users
+				var reqData models.Tasks
 				err := c.ShouldBindJSON(&reqData)
 				if err != nil {
 					fmt.Println(err.Error())
@@ -217,10 +207,11 @@ func (ctr *userController) UpdateUser(c *gin.Context) {
 					return
 				}
 
-				var postData models.Users
-				postData.Name = reqData.Name
-				postData.Email = reqData.Email
-				updateData, err := ctr.userMod.UpdateUser(dataRow.ID, postData)
+				var postData models.Tasks
+				postData.Title = reqData.Title
+				postData.Description = reqData.Description
+				postData.Status = reqData.Status
+				updateData, err := ctr.taskMod.UpdateTask(dataRow.ID, postData)
 				if err != nil {
 					c.JSON(http.StatusBadRequest, gin.H{
 						"status":  false,
@@ -238,7 +229,7 @@ func (ctr *userController) UpdateUser(c *gin.Context) {
 			}
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  false,
-				"message": "User ID is not registered",
+				"message": "Task ID is not registered",
 			})
 			return
 
@@ -246,14 +237,14 @@ func (ctr *userController) UpdateUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusBadRequest, gin.H{
 		"status":  false,
-		"message": "User ID is required",
+		"message": "Task ID is required",
 	})
 	return
 }
 
-func (ctr *userController) DestroyUser(c *gin.Context) {
+func (ctr *taskController) DestroyTask(c *gin.Context) {
 	if c.Param("id") != "" {
-		userID, err := strconv.Atoi(c.Param("id"))
+		TaskID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": false,
@@ -262,8 +253,8 @@ func (ctr *userController) DestroyUser(c *gin.Context) {
 			return
 		}
 
-		if userID >= 1 {
-			dataRow, err := ctr.userMod.GetUserRow(models.Users{ID: userID})
+		if TaskID >= 1 {
+			dataRow, err := ctr.taskMod.GetTaskRow(models.Tasks{ID: TaskID})
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"status":  false,
@@ -275,7 +266,7 @@ func (ctr *userController) DestroyUser(c *gin.Context) {
 
 			if dataRow.ID >= 1 {
 
-				result, err := ctr.userMod.DeleteUser(dataRow.ID)
+				result, err := ctr.taskMod.DeleteTask(dataRow.ID)
 				if err != nil {
 					c.JSON(http.StatusBadRequest, gin.H{
 						"status":  false,
@@ -293,7 +284,7 @@ func (ctr *userController) DestroyUser(c *gin.Context) {
 			}
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  false,
-				"message": "User ID is not registered",
+				"message": "Task ID is not registered",
 			})
 			return
 
@@ -301,7 +292,7 @@ func (ctr *userController) DestroyUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusBadRequest, gin.H{
 		"status":  false,
-		"message": "User ID is required",
+		"message": "Task ID is required",
 	})
 	return
 }
