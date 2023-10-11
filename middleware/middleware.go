@@ -24,9 +24,10 @@ func SetupMiddleware(db *gorm.DB) *jwt.GinJWTMiddleware {
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// simpan data login (save token)
-			fmt.Println("PayloadFunc -------------------------------------------------------")
+			fmt.Println("PayloadFunc -----------------------primary--------------------------------")
 
 			if v, ok := data.(*models.UserAuth); ok {
+				fmt.Println("identityKey: v. --------------------second-----------------------------------", identityKey, v.ID)
 
 				tokenResult := jwt.MapClaims{
 					identityKey: v.ID,
@@ -146,3 +147,62 @@ func VerifyPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
+
+func GenerateTokenNew(userID string) string {
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Realm:       "jwt",
+		Key:         []byte("#test-code-bank-ina#"),
+		Timeout:     time.Duration(24*365) * time.Hour,
+		MaxRefresh:  time.Duration(24*365) * time.Hour,
+		IdentityKey: identityKey,
+		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			// simpan data login (save token)
+			fmt.Println("PayloadFunc ------------------??-------------------------------------")
+
+			if v, ok := data.(*models.UserAuth); ok {
+				fmt.Println("identityKey: v. -------------------------------------------------------", identityKey, v.ID)
+
+				tokenResult := jwt.MapClaims{
+					identityKey: v.ID,
+				}
+
+				fmt.Println("dataaaa payload----- ", v.ID, v.Email, tokenResult)
+
+				return tokenResult
+			}
+
+			return jwt.MapClaims{}
+		},
+		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
+		TokenHeadName: "Bearer",
+		TimeFunc:      time.Now,
+	})
+	if err != nil {
+		fmt.Println("Err generate token: ", err)
+		return ""
+	}
+
+	userToken, _, _ := authMiddleware.TokenGenerator(jwt.MapClaims{
+		"id": userID,
+	})
+
+	return userToken
+}
+
+// func (mw *GinJWTMiddleware) GenerateToken22(userID string) string {
+// 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
+// 	claims := token.Claims.(jwt.MapClaims)
+
+// 	claims["id"] = userID
+
+// 	expire := mw.TimeFunc().Add(mw.Timeout)
+// 	claims["exp"] = expire.Unix()
+// 	claims["orig_iat"] = mw.TimeFunc().Unix()
+// 	tokenString, err := mw.signedString(token)
+// 	if err != nil {
+// 		mw.unauthorized(c, http.StatusUnauthorized, mw.HTTPStatusMessageFunc(ErrFailedTokenCreation, c))
+// 		return ""
+// 	}
+
+// 	return tokenString
+// }
