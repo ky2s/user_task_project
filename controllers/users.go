@@ -8,7 +8,7 @@ import (
 	"user_task_project/models"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -57,6 +57,7 @@ func (ctr *userController) InsertUser(c *gin.Context) {
 			"error": errorMessages,
 		})
 		return
+
 	}
 
 	hash, err := Hash(reqData.Password)

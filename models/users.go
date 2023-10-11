@@ -11,11 +11,21 @@ import (
 type Users struct {
 	gorm.Model
 	ID        int    `gorm:"primaryKey;autoIncrement"`
-	Name      string `gorm:"size:255"`
-	Email     string `gorm:"size:255"`
-	Password  string `gorm:"size:255"`
+	Name      string `gorm:"size:255" binding:"required"`
+	Email     string `gorm:"size:255;unique" binding:"required"`
+	Password  string `gorm:"size:255" binding:"required"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type UserAuth struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}
+
+type Login struct {
+	Email    string `form:"email" json:"email" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
 }
 
 type UserViews struct {

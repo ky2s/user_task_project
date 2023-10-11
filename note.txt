@@ -26,3 +26,26 @@ db.Migrator().AddColumn(&Users{}, "Name")
 
 // dsn := "root:@tcp(127.0.0.1:3306)/user_task_project?charset=utf8mb4&parseTime=True&loc=Local"
 // db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+
+// endpoint user
+	user := r.Group("/user")
+	user.Use(authMiddleware.MiddlewareFunc())
+	{
+		user.POST("/users", userController.InsertUser)
+		user.GET("/users", userController.GetUser)
+		user.GET("/users/:id", userController.GetUser)
+		user.PUT("/users/:id", userController.UpdateUser)
+		user.DELETE("/users/:id", userController.DestroyUser)
+	}
+
+	// endpoint tasks
+	task := r.Group("/task")
+	task.Use(authMiddleware.MiddlewareFunc())
+	{
+		task.POST("/tasks", taskController.InsertTask)
+		task.GET("/tasks", taskController.GetTask)
+		task.GET("/tasks/:id", taskController.GetTask)
+		task.PUT("/tasks/:id", taskController.UpdateTask)
+		task.DELETE("/tasks/:id", taskController.DestroyTask)
+	}

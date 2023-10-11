@@ -11,10 +11,10 @@ import (
 type Tasks struct {
 	gorm.Model
 	ID          int    `gorm:"primaryKey;autoIncrement"`
-	UserID      int    `gorm:"index"`
-	Title       string `gorm:"size:255"`
-	Description string
-	Status      string `gorm:"size:50"`
+	UsersID     int    `binding:"required"`
+	Title       string `gorm:"size:255" binding:"required"`
+	Description string `gorm:"text"`
+	Status      string `gorm:"size:255;default:pending"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

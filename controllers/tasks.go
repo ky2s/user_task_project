@@ -8,7 +8,7 @@ import (
 	"user_task_project/models"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 )
 
 type TaskController interface {
@@ -54,10 +54,10 @@ func (ctr *taskController) InsertTask(c *gin.Context) {
 	}
 
 	var postData models.Tasks
-	postData.UserID = 1
+	postData.UsersID = 1
 	postData.Title = reqData.Title
 	postData.Description = reqData.Description
-	postData.Status = reqData.Status
+	// postData.Status = reqData.Status
 	createData, err := ctr.taskMod.CreateTask(postData)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
