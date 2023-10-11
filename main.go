@@ -34,6 +34,7 @@ func main() {
 
 	var userModels models.UserModels = models.NewUserModels(db)
 	var userController controllers.UserController = controllers.NewUserController(userModels)
+	var googleController controllers.GoogleController = controllers.NewGoogleController(userModels)
 
 	var taskModels models.TaskModels = models.NewTaskModels(db)
 	var taskController controllers.TaskController = controllers.NewTaskController(taskModels)
@@ -51,14 +52,15 @@ func main() {
 		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 	})
 
-	r.POST("/login", authMiddleware.LoginHandler)
-
 	r.Use(gin.Logger())
 
-	// // Recovery middleware recovers from any panics and writes a 500 if there was one.
+	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	r.Use(gin.Recovery())
 
 	// r.POST("/users", userController.InsertUser)
+	r.POST("/login", authMiddleware.LoginHandler)
+	r.GET("/auth/google", googleController.GoogleLogin)
+	r.GET("/auth/google/callback", googleController.GoogleLogin)
 
 	user := r.Group("/")
 	user.Use(authMiddleware.MiddlewareFunc())
@@ -81,4 +83,5 @@ func main() {
 		task.DELETE("/tasks/:id", taskController.DestroyTask)
 	}
 	r.Run()
+
 }

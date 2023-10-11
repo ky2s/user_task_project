@@ -49,3 +49,10 @@ db.Migrator().AddColumn(&Users{}, "Name")
 		task.PUT("/tasks/:id", taskController.UpdateTask)
 		task.DELETE("/tasks/:id", taskController.DestroyTask)
 	}
+
+
+
+    Client ID : 525486579481-3bm754i69vhkmmbnl6iiafq4nfcivck2.apps.googleusercontent.com
+    CLient secret: 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
+
+    
