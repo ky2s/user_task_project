@@ -196,25 +196,3 @@ func (ctr *googleController) GoogleLoginCallback(c *gin.Context) {
 	})
 	return
 }
-
-// var key = []byte("#test-code-bank-ina#")
-
-// func GenerateToken(userID string) string {
-// 	SigningAlgorithm := "HS256"
-
-// 	token := jwt.New(jwt.GetSigningMethod(SigningAlgorithm))
-// 	claims := token.Claims.(jwt.MapClaims)
-// 	claims["identity"] = userID
-// 	claims["exp"] = time.Now().Add(time.Hour).Unix()
-// 	claims["orig_iat"] = time.Now().Unix()
-// 	var tokenString string
-// 	if SigningAlgorithm == "RS256" {
-// 		keyData, _ := os.ReadFile("testdata/jwtRS256.key")
-// 		signKey, _ := jwt.ParseRSAPrivateKeyFromPEM(keyData)
-// 		tokenString, _ = token.SignedString(signKey)
-// 	} else {
-// 		tokenString, _ = token.SignedString(key)
-// 	}
-
-// 	return tokenString
-// }

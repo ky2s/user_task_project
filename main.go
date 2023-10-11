@@ -25,11 +25,6 @@ func main() {
 	//automigrate
 	db.AutoMigrate(&models.Users{}, &models.Tasks{})
 
-	// db.Create(&Users{
-	// 	Name:  "jinzhu",
-	// 	Email: "jinzhu@gmail.com",
-	// })
-
 	r := gin.Default()
 
 	var userModels models.UserModels = models.NewUserModels(db)

@@ -60,12 +60,6 @@ func SetupMiddleware(db *gorm.DB) *jwt.GinJWTMiddleware {
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			//pengecekan token yg sudah disimpan di DB
 			fmt.Println("Authorizator ----- ")
-			fmt.Println("data tables user------->>", data.(*models.UserAuth).ID)
-
-			// if data.(*models.UserAuth).OrganizationID == "" {
-			// 	return false
-			// }
-
 			if v, ok := data.(*models.UserAuth); ok {
 
 				fmt.Println("v.ID------>>>>>>", v.ID)
@@ -202,6 +196,28 @@ func GenerateTokenNew(userID string) string {
 // 	if err != nil {
 // 		mw.unauthorized(c, http.StatusUnauthorized, mw.HTTPStatusMessageFunc(ErrFailedTokenCreation, c))
 // 		return ""
+// 	}
+
+// 	return tokenString
+// }
+
+// var key = []byte("#test-code-bank-ina#")
+
+// func GenerateToken(userID string) string {
+// 	SigningAlgorithm := "HS256"
+
+// 	token := jwt.New(jwt.GetSigningMethod(SigningAlgorithm))
+// 	claims := token.Claims.(jwt.MapClaims)
+// 	claims["identity"] = userID
+// 	claims["exp"] = time.Now().Add(time.Hour).Unix()
+// 	claims["orig_iat"] = time.Now().Unix()
+// 	var tokenString string
+// 	if SigningAlgorithm == "RS256" {
+// 		keyData, _ := os.ReadFile("testdata/jwtRS256.key")
+// 		signKey, _ := jwt.ParseRSAPrivateKeyFromPEM(keyData)
+// 		tokenString, _ = token.SignedString(signKey)
+// 	} else {
+// 		tokenString, _ = token.SignedString(key)
 // 	}
 
 // 	return tokenString
