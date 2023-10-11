@@ -48,7 +48,7 @@ type GoogleUserInfo struct {
 
 func SchemaPublic(tableName string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Table("public" + "." + tableName)
+		return db.Table(tableName)
 	}
 }
 

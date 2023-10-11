@@ -57,6 +57,7 @@ func main() {
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	r.Use(gin.Recovery())
 
+	r.POST("/register", userController.InsertUser)
 	r.POST("/login", authMiddleware.LoginHandler)
 	r.GET("/auth/google", googleController.GoogleLogin)
 	r.GET("/auth/google/callback", googleController.GoogleLoginCallback)

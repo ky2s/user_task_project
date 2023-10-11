@@ -7,6 +7,7 @@ import (
 	"strings"
 	"user_task_project/models"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
@@ -29,6 +30,9 @@ func NewTaskController(taskModels models.TaskModels) TaskController {
 }
 
 func (ctr *taskController) InsertTask(c *gin.Context) {
+
+	claims := jwt.ExtractClaims(c)
+	userID, _ := strconv.Atoi(claims["id"].(string))
 
 	var reqData models.Tasks
 	err := c.ShouldBindJSON(&reqData)
@@ -53,8 +57,12 @@ func (ctr *taskController) InsertTask(c *gin.Context) {
 		return
 	}
 
+	if userID <= 0 {
+		userID = 1
+	}
+
 	var postData models.Tasks
-	postData.UsersID = 1
+	postData.UsersID = userID
 	postData.Title = reqData.Title
 	postData.Description = reqData.Description
 	// postData.Status = reqData.Status
